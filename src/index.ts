@@ -1,6 +1,27 @@
 import app from "./app";
 import config from "./config";
+import connectDB from "./config/database";
 
-app.listen(config.port, () => {
-  console.log(`server is runnning at port ${config.port}`);
-});
+async function startServer() {
+  try {
+    // await connectDB();
+
+    // listen to port
+    const server = app.listen(config.port, () => {
+      console.log(`server is runnning at port ${config.port}`);
+    });
+
+    //? handle unexpected error
+    process.on("unhandlededRejection", (error) => {
+      console.log(error);
+      server.close(() => {
+        process.exit(1);
+      });
+    });
+  } catch (error) {
+    console.error("failed to start server", error);
+    process.exit(1);
+  }
+}
+
+startServer();

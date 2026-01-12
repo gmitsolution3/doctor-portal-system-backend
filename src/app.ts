@@ -1,16 +1,17 @@
 import express from "express";
 import cors from "cors";
-import connectDB from "./config/database";
 
 import errorHandler from "./middlewares/error.middleware";
+import router from "./routes";
 
-// application configuration
 const app = express();
+
+// global middleware configuration
 app.use(cors());
 app.use(express.json());
 
-// Database configuration
-connectDB();
+// handle routes
+app.use("/api/v1", router);
 
 // handle global error
 app.use(errorHandler);
