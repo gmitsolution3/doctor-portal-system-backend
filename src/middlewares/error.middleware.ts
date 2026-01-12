@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
+import status from "http-status";
 
 export default function errorHandler(
   error: any,
@@ -19,7 +20,8 @@ export default function errorHandler(
 
   res.status(statusCode).json({
     success: false,
-    status: "error",
+    statusCode,
+    status: status[statusCode] as string,
     message,
   });
 }
