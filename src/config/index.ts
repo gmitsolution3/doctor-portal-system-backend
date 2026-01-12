@@ -2,7 +2,7 @@ import "dotenv/config";
 
 export default {
   port: process.env.PORT || 9000,
-  mongoURI: process.env.mongoURI as string,
+  mongoURI: process.env.MONGO_URI as string,
   databaseConfig: {
     user: process.env.DB_USERNANE,
     pass: process.env.DB_PASSWORD,
