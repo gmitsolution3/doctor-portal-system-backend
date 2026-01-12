@@ -8,7 +8,7 @@ async function startServer() {
 
     // listen to port
     const server = app.listen(config.port, () => {
-      console.log(`server is runnning at port ${config.port}`);
+      console.log(`app is listening to port ${config.port}`);
     });
 
     //? handle unexpected error
