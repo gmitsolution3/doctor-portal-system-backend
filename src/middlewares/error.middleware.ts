@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ApiError } from "../utils/ApiError";
+import { AppError } from "../utils/AppError";
 import status from "http-status";
 
 export default function errorHandler(
@@ -13,7 +13,7 @@ export default function errorHandler(
   let statusCode = 500;
   let message = "Internal Server Error";
 
-  if (error instanceof ApiError) {
+  if (error instanceof AppError) {
     statusCode = error.statusCode;
     message = error.message;
   }
@@ -21,7 +21,7 @@ export default function errorHandler(
   res.status(statusCode).json({
     success: false,
     statusCode,
-    status: status[statusCode] as string,
+    status: status[statusCode],
     message,
   });
 }

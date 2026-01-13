@@ -1,6 +1,6 @@
 import { IDoctorService } from "./doctor-service.interface";
 import DoctorService from "./doctor-service.model";
-import { ApiError } from "./../../utils/ApiError";
+import { AppError } from "../../utils/AppError";
 import status from "http-status";
 
 export const createDoctorService = async (
@@ -11,7 +11,7 @@ export const createDoctorService = async (
   });
 
   if (serviceExist) {
-    throw new ApiError(
+    throw new AppError(
       status.CONFLICT,
       "This service Already Exist!"
     );
@@ -20,7 +20,7 @@ export const createDoctorService = async (
   const result = await DoctorService.create(payload);
 
   if (!result._id) {
-    throw new ApiError(
+    throw new AppError(
       status.INTERNAL_SERVER_ERROR,
       "Service was not created!"
     );
