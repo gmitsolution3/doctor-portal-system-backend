@@ -1,10 +1,12 @@
 import status from "http-status";
 import { Request, Response } from "express";
+import { sendResponse } from "../../utils/sendResponse";
 
 const defaultController = (_req: Request, res: Response) => {
-  res.status(status.OK).json({
-    success: true,
-    message: "server is running...",
+  sendResponse(res, {
+    statusCode: status.OK,
+    status: status[status.OK],
+    message: "Server is running...",
   });
 };
 

@@ -1,6 +1,7 @@
 import { catchAsync } from "../../utils/catchAsync";
 import * as doctorService from "./doctor-service.service";
-import status from "http-status"
+import status from "http-status";
+import { sendResponse } from "../../utils/sendResponse";
 
 export const getDoctorService = catchAsync(async (_req, res) => {
   res.status(200).json({
@@ -14,11 +15,10 @@ export const createDoctorService = catchAsync(async (req, res) => {
 
   const result = await doctorService.createDoctorService(serviceData);
 
-  res.status(status.CREATED).json({
-    success: true,
+  sendResponse(res, {
     statusCode: status.CREATED,
     status: status[status.CREATED],
     message: "Service created successfully.",
-    data: result
-  })
+    data: result,
+  });
 });
