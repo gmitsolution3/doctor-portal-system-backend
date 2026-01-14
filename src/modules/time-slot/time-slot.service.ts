@@ -19,3 +19,11 @@ export const createTimeSlot = async (payload: ITimeSlotPayload) => {
 
   return newTimeSlot;
 };
+
+export const createTimeSlotBulk = async (
+  payload: ITimeSlotPayload[]
+) => {
+  const newTimeSlotList = await TimeSlot.insertMany(payload);
+
+  return newTimeSlotList;
+};

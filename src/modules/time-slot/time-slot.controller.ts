@@ -55,9 +55,49 @@ export const createTimeSlot = catchAsync(async (req, res) => {
   }
 
   sendResponse(res, {
-    statusCode: status.OK,
-    status: status[status.OK],
+    statusCode: status.CREATED,
+    status: status[status.CREATED],
     message: "Time slot created successfully",
     data: newTimeSlot,
   });
+});
+
+// create bulk time slot
+export const createTimeSlotBulk = catchAsync(async (req, res) => {
+  const payload = req.body;
+
+  try {
+    const newTimeSlotList = await timeslotService.createTimeSlotBulk(
+      payload
+    );
+
+    if (newTimeSlotList.length < 1) {
+      throw new AppError(
+        400,
+        "There was an error creating time slots!"
+      );
+    }
+
+    sendResponse(res, {
+      statusCode: status.CREATED,
+      status: status[status.CREATED],
+      message: "Time slots created successfully.",
+      data: newTimeSlotList,
+    });
+  } catch (err: any) {
+    if (err.name === "ValidationError") {
+      const errors: {
+        [key: string]: string;
+      } = {};
+
+      for (const field in err.errors) {
+        errors[field] = err.errors[field].message;
+      }
+
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors,
+      });
+    }
+  }
 });

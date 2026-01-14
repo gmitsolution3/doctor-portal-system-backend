@@ -8,4 +8,6 @@ router
   .get(timeslotController.getTimeSlots)
   .post(timeslotController.createTimeSlot);
 
+router.post("/bulk", timeslotController.createTimeSlotBulk);
+
 export default router;

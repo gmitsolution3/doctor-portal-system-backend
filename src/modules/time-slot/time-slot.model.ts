@@ -19,7 +19,7 @@ const timeSlotSchema = new Schema<ITimeSlot>(
     },
     status: {
       type: String,
-      require: [true, "Status is required!"],
+      required: [true, "Status is required!"],
       enum: {
         values: ["online", "offline"],
         message: "{VALUE} is not a valid status!",

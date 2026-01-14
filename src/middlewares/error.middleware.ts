@@ -11,7 +11,7 @@ export default function errorHandler(
   console.error(error.stack);
 
   let statusCode = 500;
-  let message = "Internal Server Error";
+  let message = error.message || "Internal Server Error";
 
   if (error instanceof AppError) {
     statusCode = error.statusCode;
