@@ -20,10 +20,50 @@ export const createTimeSlot = async (payload: ITimeSlotPayload) => {
   return newTimeSlot;
 };
 
+// create bulk time slot
 export const createTimeSlotBulk = async (
   payload: ITimeSlotPayload[]
 ) => {
   const newTimeSlotList = await TimeSlot.insertMany(payload);
 
   return newTimeSlotList;
+};
+
+// book a time slot
+export const bookTimeSlot = async (id: string) => {
+  const updatedDoc = {
+    $set: {
+      isBooked: true,
+    },
+  };
+
+  const bookedTimeSlot = await TimeSlot.updateOne(
+    {
+      _id: id,
+      isBooked: false,
+    },
+    updatedDoc
+  );
+
+  return bookedTimeSlot;
+};
+
+// toggle availability
+export const toggleAvailability = async (id: string) => {
+  const timeSlot = await TimeSlot.findOne({ _id: id });
+
+  const updatedDoc = {
+    $set: {
+      isAvailable: timeSlot?.isAvailable ? false : true,
+    },
+  };
+
+  const bookedTimeSlot = await TimeSlot.updateOne(
+    {
+      _id: id,
+    },
+    updatedDoc
+  );
+
+  return bookedTimeSlot;
 };

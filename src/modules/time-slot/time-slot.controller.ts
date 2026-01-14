@@ -4,6 +4,7 @@ import status from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "./../../utils/sendResponse";
 import { AppError } from "./../../utils/AppError";
+import { isValidObjectId } from "mongoose";
 
 // get all time slots - online, offline both
 export const getTimeSlots = catchAsync(async (req, res) => {
@@ -81,7 +82,7 @@ export const createTimeSlotBulk = catchAsync(async (req, res) => {
     sendResponse(res, {
       statusCode: status.CREATED,
       status: status[status.CREATED],
-      message: "Time slots created successfully.",
+      message: "Time slots created successfully in bulk.",
       data: newTimeSlotList,
     });
   } catch (err: any) {
@@ -99,5 +100,73 @@ export const createTimeSlotBulk = catchAsync(async (req, res) => {
         errors: errors,
       });
     }
+  }
+});
+
+// book a time slot
+export const bookTimeSlot = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  if (!isValidObjectId(id)) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      `${id} is not a valid object id!`
+    );
+  }
+
+  const bookedTimeSlot = await timeslotService.bookTimeSlot(
+    id as string
+  );
+
+  if (
+    bookedTimeSlot.acknowledged &&
+    bookedTimeSlot.modifiedCount > 0
+  ) {
+    sendResponse(res, {
+      statusCode: status.OK,
+      status: status[status.OK],
+      message: "Time slot has been booked.",
+      data: bookedTimeSlot,
+    });
+  } else {
+    sendResponse(res, {
+      statusCode: status.CONFLICT,
+      status: status[status.CONFLICT],
+      message: "Time slot is already booked.",
+      data: bookedTimeSlot,
+    });
+  }
+});
+
+// book a time slot
+export const toggleAvailability = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  if (!isValidObjectId(id)) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      `${id} is not a valid object id!`
+    );
+  }
+
+  const toggledTimeSlot = await timeslotService.toggleAvailability(
+    id as string
+  );
+
+  if (
+    toggledTimeSlot.acknowledged &&
+    toggledTimeSlot.modifiedCount > 0
+  ) {
+    sendResponse(res, {
+      statusCode: status.OK,
+      status: status[status.OK],
+      message: "Time availability has been changed.",
+      data: toggledTimeSlot,
+    });
+  } else {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      "Failed to update availability!"
+    );
   }
 });
