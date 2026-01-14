@@ -21,4 +21,7 @@ router.patch(
 // create bulk time slot
 router.post("/bulk", timeslotController.createTimeSlotBulk);
 
+// delete a time slot
+router.delete("/:id", timeslotController.deleteTimeSlot);
+
 export default router;

@@ -138,7 +138,7 @@ export const bookTimeSlot = catchAsync(async (req, res) => {
   }
 });
 
-// book a time slot
+// change availability of a time slot
 export const toggleAvailability = catchAsync(async (req, res) => {
   const { id } = req.params;
 
@@ -167,6 +167,32 @@ export const toggleAvailability = catchAsync(async (req, res) => {
     throw new AppError(
       status.INTERNAL_SERVER_ERROR,
       "Failed to update availability!"
+    );
+  }
+});
+
+// delete a time slot
+export const deleteTimeSlot = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const deletedTimeSlot = await timeslotService.deleteTimeSlot(
+    id as string
+  );
+
+  if (
+    deletedTimeSlot.acknowledged &&
+    deletedTimeSlot.deletedCount > 0
+  ) {
+    sendResponse(res, {
+      statusCode: status.OK,
+      status: status[status.OK],
+      message: "Time slot has been deleted.",
+      data: deletedTimeSlot,
+    });
+  } else {
+    throw new AppError(
+      status.NOT_FOUND,
+      "Failed to delete time slot!"
     );
   }
 });

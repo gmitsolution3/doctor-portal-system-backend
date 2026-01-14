@@ -67,3 +67,10 @@ export const toggleAvailability = async (id: string) => {
 
   return bookedTimeSlot;
 };
+
+// delete time slot
+export const deleteTimeSlot = async (id: string) => {
+  const deletedTimeSlot = await TimeSlot.deleteOne({ _id: id });
+
+  return deletedTimeSlot;
+};
