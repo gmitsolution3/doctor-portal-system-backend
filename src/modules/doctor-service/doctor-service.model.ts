@@ -23,6 +23,6 @@ const doctorServiceSchema = new Schema<IDoctorService>(
   }
 );
 
-const DoctorService = model("doctorService", doctorServiceSchema);
+const DoctorService = model("DoctorService", doctorServiceSchema);
 
 export default DoctorService;

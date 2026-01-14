@@ -7,6 +7,12 @@ type TResponse<T> = {
   data?: T;
 };
 
+/**
+ * Send response back to client.
+ *
+ * @param {Response} res The response object from express
+ * @param {TResponse} payload The payload to send to client.
+ */
 export const sendResponse = <T>(
   res: Response,
   payload: TResponse<T>
