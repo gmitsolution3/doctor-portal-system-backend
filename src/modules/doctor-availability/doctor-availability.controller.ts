@@ -5,7 +5,7 @@ import status from "http-status";
 
 export const getDates = catchAsync(async (req, res) => {
   const { type } = req.query;
-  
+
   const data = await availabilityService.getAvailableDates(
     type as "ONLINE" | "OFFLINE"
   );
@@ -69,3 +69,17 @@ export const createAvailability = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+export const createAvailabilityByRange = catchAsync(
+  async (req, res) => {
+    const result =
+      await availabilityService.createAvailabilityByRange(req.body);
+
+    sendResponse(res, {
+      statusCode: status.CREATED,
+      status: status[status.CREATED],
+      message: "Time created slot created by range",
+      data: result,
+    });
+  }
+);

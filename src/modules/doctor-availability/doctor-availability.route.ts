@@ -9,4 +9,9 @@ router.get("/slots/generate", availabilityController.getSlots);
 
 router.post("/", availabilityController.createAvailability);
 
+router.post(
+  "/range",
+  availabilityController.createAvailabilityByRange
+);
+
 export default router;
