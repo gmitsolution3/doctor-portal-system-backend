@@ -17,6 +17,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.6",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "http-status": "^2.1.0",
