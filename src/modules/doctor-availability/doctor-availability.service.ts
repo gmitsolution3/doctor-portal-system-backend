@@ -2,7 +2,11 @@ import DoctorAvailability from "./doctor-availability.model";
 import { generateSlots } from "./../slot/slot.service";
 import { AppError } from "../../utils/AppError";
 import dayjs from "dayjs";
-import { ICreateAvailabilityPayload, ICreateRangePayload } from "./doctor-availability.interface";
+import {
+  ICreateAvailabilityPayload,
+  ICreateRangePayload,
+} from "./doctor-availability.interface";
+import { normalizeTo24Hour } from "../../utils/notmalizeTime";
 
 const DAY_MAP: Record<string, number> = {
   SUN: 0,
@@ -24,9 +28,6 @@ export const getAvailableDates = async (
   const timeWindow = await DoctorAvailability.find({
     isActive: true,
     type,
-    date: {
-      $gte: new Date().toISOString().slice(0, 10),
-    },
   });
 
   return {
@@ -66,15 +67,18 @@ export const createAvailability = async (
     throw new AppError(400, "Missing required fields");
   }
 
-  if (startTime >= endTime) {
+  const normalizedStartTime = normalizeTo24Hour(startTime);
+  const normalizedEndTime = normalizeTo24Hour(endTime);
+
+  if (normalizedStartTime >= normalizedEndTime) {
     throw new AppError(400, "Start time must be before end time");
   }
 
   //  Prevent exact duplicates
   const exactExists = await DoctorAvailability.findOne({
     date,
-    startTime,
-    endTime,
+    startTime: normalizedStartTime,
+    endTime: normalizedEndTime,
     type,
     isActive: true,
   });
@@ -89,12 +93,12 @@ export const createAvailability = async (
     isActive: true,
     type: { $in: [type] },
     $or: [
-      { startTime: { $lt: endTime, $gte: startTime } },
-      { endTime: { $gt: startTime, $lte: endTime } },
+      { startTime: { $lt: normalizedEndTime, $gte: normalizedStartTime } },
+      { endTime: { $gt: normalizedStartTime, $lte: normalizedEndTime } },
       {
         $and: [
-          { startTime: { $lte: startTime } },
-          { endTime: { $gte: endTime } },
+          { startTime: { $lte: normalizedStartTime } },
+          { endTime: { $gte: normalizedEndTime } },
         ],
       },
     ],
@@ -110,8 +114,8 @@ export const createAvailability = async (
   //  Create availability
   return DoctorAvailability.create({
     date,
-    startTime,
-    endTime,
+    startTime: normalizedStartTime,
+    endTime: normalizedEndTime,
     type,
   });
 };
@@ -128,24 +132,41 @@ export const createAvailabilityByRange = async (
   const start = dayjs(startDate);
   const end = dayjs(endDate);
 
+  if (!start.isValid() || !end.isValid()) {
+    throw new AppError(400, "Invalid date format");
+  }
+
   if (end.isBefore(start)) {
     throw new AppError(400, "End date must be after start date");
   }
 
+  // 2️⃣ Validate days of week
   const validDays = daysOfWeek.map((d) => DAY_MAP[d]);
 
   if (validDays.some((d) => d === undefined)) {
     throw new AppError(400, "Invalid day of week");
   }
 
-  // Validate time windows
-  for (const w of timeWindows) {
-    if (w.startTime >= w.endTime) {
-      throw new AppError(400, "Invalid time window");
-    }
-  }
+  // 3️⃣ Normalize & validate time windows (CRITICAL PART)
+  const normalizedTimeWindows = timeWindows.map((w) => {
+    const startTime = normalizeTo24Hour(w.startTime);
+    const endTime = normalizeTo24Hour(w.endTime);
 
-  //  Generate dates
+    if (startTime >= endTime) {
+      throw new AppError(
+        400,
+        `Invalid time window ${w.startTime} - ${w.endTime}`
+      );
+    }
+
+    return {
+      startTime,
+      endTime,
+      type: w.type,
+    };
+  });
+
+  // 4️⃣ Generate dates
   const dates: string[] = [];
   let current = start;
 
@@ -160,28 +181,28 @@ export const createAvailabilityByRange = async (
     throw new AppError(400, "No matching dates found");
   }
 
-  //  Prepare docs
+  // 5️⃣ Prepare availability documents
   const docs: any[] = [];
 
   for (const date of dates) {
-    for (const window of timeWindows) {
+    for (const window of normalizedTimeWindows) {
       docs.push({
         date,
-        startTime: window.startTime,
-        endTime: window.endTime,
+        startTime: window.startTime, // always HH:mm
+        endTime: window.endTime,     // always HH:mm
         type: window.type,
       });
     }
   }
 
-  //  Remove duplicates (IMPORTANT)
+  // 6️⃣ Remove duplicates
   const existing = await DoctorAvailability.find({
     date: { $in: dates },
-    $or: timeWindows.map((w) => ({
+    isActive: true,
+    $or: normalizedTimeWindows.map((w) => ({
       startTime: w.startTime,
       endTime: w.endTime,
       type: w.type,
-      isActive: true,
     })),
   });
 
@@ -198,5 +219,10 @@ export const createAvailabilityByRange = async (
       )
   );
 
+  if (!filteredDocs.length) {
+    throw new AppError(409, "All availability already exists");
+  }
+
+  // 7️⃣ Insert
   return DoctorAvailability.insertMany(filteredDocs);
 };

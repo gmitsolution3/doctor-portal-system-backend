@@ -13,6 +13,9 @@ export interface IAppointment {
   patientGender: "male" | "female" | "other";
   patientDateOfBirth: Date;
   patientProblem: string;
+  consultationFee?: number;
+  consultationZoomLink?: string;
+  isPaid?: boolean;
 }
 
 export interface IAppointmentPayload {

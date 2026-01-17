@@ -41,8 +41,16 @@ const appointmentSchema = new Schema<IAppointment>(
       type: String,
       required: true,
     },
+    consultationFee: {
+      type: Number,
+      required: true,
+    },
+    consultationZoomLink: {
+      type: String,
+      required: false,
+    },
   },
-  { timestamps: true }
+  { strict: true, timestamps: true, versionKey: false },
 );
 
 const Appointment = model("Appointment", appointmentSchema);
