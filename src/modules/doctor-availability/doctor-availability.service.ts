@@ -2,26 +2,7 @@ import DoctorAvailability from "./doctor-availability.model";
 import { generateSlots } from "./../slot/slot.service";
 import { AppError } from "../../utils/AppError";
 import dayjs from "dayjs";
-
-interface CreateAvailabilityPayload {
-  date: string; // YYYY-MM-DD
-  startTime: string; // HH:mm
-  endTime: string; // HH:mm
-  type: "ONLINE" | "OFFLINE" | "BOTH";
-}
-
-interface TimeWindow {
-  startTime: string;
-  endTime: string;
-  type: "ONLINE" | "OFFLINE" | "BOTH";
-}
-
-interface CreateRangePayload {
-  startDate: string;
-  endDate: string;
-  daysOfWeek: string[];
-  timeWindows: TimeWindow[];
-}
+import { ICreateAvailabilityPayload, ICreateRangePayload } from "./doctor-availability.interface";
 
 const DAY_MAP: Record<string, number> = {
   SUN: 0,
@@ -76,7 +57,7 @@ export const getSlotsForAvailability = async (
 };
 
 export const createAvailability = async (
-  payload: CreateAvailabilityPayload
+  payload: ICreateAvailabilityPayload
 ) => {
   const { date, startTime, endTime, type } = payload;
 
@@ -136,7 +117,7 @@ export const createAvailability = async (
 };
 
 export const createAvailabilityByRange = async (
-  payload: CreateRangePayload
+  payload: ICreateRangePayload
 ) => {
   const { startDate, endDate, daysOfWeek, timeWindows } = payload;
 

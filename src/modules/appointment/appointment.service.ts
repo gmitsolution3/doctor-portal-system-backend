@@ -1,15 +1,7 @@
 import Appointment from "./appointment.model";
 import { AppError } from "../../utils/AppError";
 import DoctorAvailability from "./../doctor-availability/doctor-availability.model";
-
-interface IAppointmentPayload {
-  date: string;
-  startTime: string;
-  endTime: string;
-  type: "ONLINE" | "OFFLINE";
-  patientName: string;
-  patientPhone: string;
-}
+import { IAppointmentPayload } from "./appointment.interface";
 
 export const createAppointment = async (
   payload: IAppointmentPayload

@@ -14,3 +14,12 @@ export interface IAppointment {
   patientDateOfBirth: Date;
   patientProblem: string;
 }
+
+export interface IAppointmentPayload {
+  date: string;
+  startTime: string;
+  endTime: string;
+  type: "ONLINE" | "OFFLINE";
+  patientName: string;
+  patientPhone: string;
+}
